@@ -58,3 +58,10 @@ From: Task: WebDriver.createSession()
     at /usr/lib/node_modules/protractor/node_modules/q/q.js:863:30
     at Promise.promise.promiseDispatch (/usr/lib/node_modules/protractor/node_modules/q/q.js:796:13)
 [13:18:30] E/launcher - Process exited with error code 199
+
+
+
+HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=3 CMD \
+    test $(grep -o '[0-9]\+ specs' results/test_output.log | awk '{print $1}') -eq $(grep -o '[0-9]\+ failures' results/test_output.log | awk '{print $1}') \
+    && echo 'All specs passed.' || \
+    (echo $(grep -o '[0-9]\+ specs' results/test_output.log | awk '{print $1}') 'specs run with' $(grep -o '[0-9]\+ failures' results/test_output.log | awk '{print $1}') 'failures.' && exit 1)
