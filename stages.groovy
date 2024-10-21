@@ -124,3 +124,105 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=1 CMD \
                 }
             }
         }
+
+
+
+
+
+
+---------------------+
+
+
+
+
+
+
+
+
+
+
+
+            stage('Run Protractor Tests in Docker') {
+            steps {
+                script {
+                    try {
+                        // Step 1: Clone the repository containing the tests and Dockerfile
+                        git branch: 'main', url: 'https://github.com/your-repo/test-repo.git'
+
+                        // Assume you have a URL variable (for example, passed in through Jenkins parameters)
+                        def testUrl = params.TEST_URL
+
+                        // Step 2: Replace placeholders in the settings.js file with static username, password, and the URL variable
+                        sh """
+                        sed -i 's/REPLACE_WITH_USERNAME/selenium/g' path/to/settings.js
+                        sed -i 's/REPLACE_WITH_PASSWORD/selenium/g' path/to/settings.js
+                        sed -i 's|REPLACE_WITH_URL|${testUrl}|g' path/to/settings.js
+                        """
+
+                        // Step 3: Build the Docker image from the Dockerfile in the repo
+                        sh 'docker build -t selenium-tests .'
+
+                        // Step 4: Run the container in detached mode and store the container ID
+                        def containerId = sh(script: """
+                            docker run -d selenium-tests
+                        """, returnStdout: true).trim()
+
+                        echo "Started Docker container: ${containerId}"
+
+                        // Step 5: Wait for tests to complete (adjust duration as necessary)
+                        sleep time: 400, unit: 'SECONDS'
+
+                        // Step 6: Fetch the logs from the running container
+                        def logOutput = sh(script: """
+                            docker logs ${containerId}
+                        """, returnStdout: true).trim()
+
+                        // Step 7: Print logs for visibility in Jenkins
+                        echo "Test log output:\n${logOutput}"
+
+                        // Step 8: Check for test failures in the logs using regex
+                        def failureMatch = logOutput =~ /([0-9]+) failures/
+                        def failureCount = failureMatch ? failureMatch[0][1].toInteger() : 0
+
+                        // Step 9: If no failures, log success; otherwise, mark the build as failed
+                        if (failureCount == 0) {
+                            echo "All tests passed."
+                        } else {
+                            error "${failureCount} tests failed."
+                        }
+
+                        // Step 10: Clean up - stop and remove the container
+                        sh "docker stop ${containerId}"
+                        sh "docker rm ${containerId}"
+
+                        // Step 11: Remove the Docker image after the run
+                        sh 'docker rmi selenium-tests'
+                        
+                    } catch (Exception e) {
+                        // Handle failure
+                        echo "Test stage failed: ${e.message}"
+                        currentBuild.result = 'UNSTABLE' // or 'FAILURE'
+                    }
+                }
+            }
+            post {
+                always {
+                    echo 'Test stage completed.'
+                }
+            }
+        }
+
+        stage('Post-Testing') {
+            steps {
+                script {
+                    // This stage runs regardless of the test stage result
+                    if (currentBuild.result == 'UNSTABLE') {
+                        echo 'Tests had some failures, check the logs for details.'
+                    } else if (currentBuild.result == 'FAILURE') {
+                        echo 'Tests failed completely.'
+                    } else {
+                        echo 'No issues with tests, proceeding with the next stage.'
+                    }
+                }
+            }
+        }
