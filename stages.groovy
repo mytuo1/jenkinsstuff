@@ -65,3 +65,17 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=3 CMD \
     test $(grep -o '[0-9]\+ specs' results/test_output.log | awk '{print $1}') -eq $(grep -o '[0-9]\+ failures' results/test_output.log | awk '{print $1}') \
     && echo 'All specs passed.' || \
     (echo $(grep -o '[0-9]\+ specs' results/test_output.log | awk '{print $1}') 'specs run with' $(grep -o '[0-9]\+ failures' results/test_output.log | awk '{print $1}') 'failures.' && exit 1)
+
+
+    failures=$(grep -m1 -o '[0-9]\+ failures' test-output.log | awk '{print $1}') && \
+    if [ "$failures" -eq "0" ]; then \
+      echo "All tests passed."; \
+      exit 0; \
+    else \
+      echo "$failures tests failed."; \
+      exit 1; \
+    fi
+
+# Healthcheck to monitor Protractor test results and kill container if unhealthy
+HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=1 CMD \
+    grep -q "0 failures" test-output.log || exit 1
