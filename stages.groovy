@@ -79,3 +79,48 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=3 CMD \
 # Healthcheck to monitor Protractor test results and kill container if unhealthy
 HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=1 CMD \
     grep -q "0 failures" test-output.log || exit 1
+
+
+
+
+        stage('Run Protractor Tests in Docker') {
+            steps {
+                script {
+                    // Build the Docker image
+                    def image = docker.build("your-docker-image-name")
+
+                    // Run the container in detached mode (-d) and map port 4444
+                    def containerId = sh(script: """
+                        docker run -d -p 4444:4444 your-docker-image-name
+                    """, returnStdout: true).trim()
+
+                    echo "Started Docker container: ${containerId}"
+
+                    // Wait for the tests to finish (use sleep or another method based on expected runtime)
+                    sleep time: 400, unit: 'SECONDS'
+
+                    // Get the test results from the container logs
+                    def logOutput = sh(script: """
+                        docker logs ${containerId}
+                    """, returnStdout: true).trim()
+
+                    // Print the test log for reference
+                    echo "Test log output:\n${logOutput}"
+
+                    // Check for test failures in the logs
+                    def failureMatch = logOutput =~ /([0-9]+) failures/
+                    def failureCount = failureMatch ? failureMatch[0][1].toInteger() : 0
+
+                    // Check for test success
+                    if (failureCount == 0) {
+                        echo "All tests passed."
+                    } else {
+                        error "${failureCount} tests failed."
+                    }
+
+                    // Stop and remove the container
+                    sh "docker stop ${containerId}"
+                    sh "docker rm ${containerId}"
+                }
+            }
+        }
