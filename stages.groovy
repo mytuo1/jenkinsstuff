@@ -226,3 +226,9 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=1 CMD \
                 }
             }
         }
+
+
+
+                        settingsContent = settingsContent.replaceAll(/(this\.username\s*=\s*')([^']*)(')/, "\$1selenium\$3")
+                        settingsContent = settingsContent.replaceAll(/(this\.password\s*=\s*')([^']*)(')/, "\$1selenium\$3")
+                        settingsContent = settingsContent.replaceAll(/(this\.baseUrl\s*=\s*')([^']*)(')/, "\$1${testUrl}\$3")
