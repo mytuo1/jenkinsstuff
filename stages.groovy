@@ -256,3 +256,22 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=1 CMD \
 
 
 expected to call java.lang.String.eachLine but wound up catching org.jenkinsci.plugins.workflow.cps.CpsClosure2.call; see: https://jenkins.io/redirect/pipeline-cps-method-mismatches/
+
+                        def logLines = logOutput.split("\n")
+
+                        // Check each line for failures and specs
+                        for (line in logLines) {
+                            if (line.contains("failures")) {
+                                // Example line: "2 specs, 1 failures"
+                                def parts = line.split(',')
+                                failureCount = parts[1].trim().split(' ')[0].toInteger()
+                            }
+
+                            if (line.contains("specs")) {
+                                // Example line: "2 specs, 1 failures"
+                                def parts = line.split(',')
+                                totalSpecs = parts[0].trim().split(' ')[0].toInteger()
+                            }
+                        }
+
+    
