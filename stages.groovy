@@ -232,3 +232,24 @@ HEALTHCHECK --interval=60s --timeout=10s --start-period=450s --retries=1 CMD \
                         settingsContent = settingsContent.replaceAll(/(this\.username\s*=\s*')([^']*)(')/, "\$1selenium\$3")
                         settingsContent = settingsContent.replaceAll(/(this\.password\s*=\s*')([^']*)(')/, "\$1selenium\$3")
                         settingsContent = settingsContent.replaceAll(/(this\.baseUrl\s*=\s*')([^']*)(')/, "\$1${testUrl}\$3")
+
+
+
+
+                        def failureCount = 0
+                        def totalSpecs = 0
+
+                        // Split log lines and check each line for failures and specs
+                        logOutput.eachLine { line ->
+                            if (line.contains("failures")) {
+                                // Example line: "2 specs, 1 failures"
+                                def parts = line.split(',')
+                                failureCount = parts[1].trim().split(' ')[0].toInteger()
+                            }
+
+                            if (line.contains("specs")) {
+                                // Example line: "2 specs, 1 failures"
+                                def parts = line.split(',')
+                                totalSpecs = parts[0].trim().split(' ')[0].toInteger()
+                            }
+                        }
