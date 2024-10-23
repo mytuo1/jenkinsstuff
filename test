@@ -163,3 +163,4 @@ expected to call java.lang.String.eachLine but wound up catching org.jenkinsci.p
 
 
                         def suitePattern = ~/^\[[A-Z]+:\] \[[A-Za-zäÄöÖüÜß ]+\]/  // Matches [TERMINAL:] [Wirtschaftlich Berechtigte]
+def suitePattern = ~/^\[[A-Z\s]+\:\] \[[A-Za-zäÄöÖüÜß ]+\] [A-Za-z0-9 .:-]+/
