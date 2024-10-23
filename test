@@ -116,3 +116,6 @@
                             echo "Suite-related failures detected:\n${suiteFailures.join('\n')}"
                             currentBuild.result = 'UNSTABLE'
                         }
+
+
+expected to call java.lang.String.eachLine but wound up catching org.jenkinsci.plugins.workflow.cps.CpsClosure2.call; see: https://jenkins.io/redirect/pipeline-cps-method-mismatches/
