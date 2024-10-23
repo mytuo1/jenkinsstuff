@@ -87,3 +87,32 @@
 13:13:49  [10:13:05] I/launcher - overall: 5 failed spec(s)
 13:13:49  [10:13:05] E/launcher - Process exited with error code 1
 13:13:49  5 tests failed.
+
+
+
+                        // Initialize lists for suite-related and other failures
+                        def suiteFailures = []
+                        def otherFailures = []
+
+                        // Parse the log line by line
+                        logOutput.eachLine { line ->
+                            if (line.contains("- Failed:") || line.contains("- Expected")) {
+                                if (line.contains("[TERMINAL:] [Wirtschaftlich Berechtigte]")) {
+                                    suiteFailures.add(line.trim())
+                                } else {
+                                    otherFailures.add(line.trim())
+                                }
+                            }
+                        }
+
+                        // Fail the pipeline for non-suite-related failures
+                        if (!otherFailures.isEmpty()) {
+                            echo "Non-suite failures detected:\n${otherFailures.join('\n')}"
+                            error "Pipeline failed due to non-suite test failures."
+                        }
+
+                        // Mark build as unstable if there are suite-related failures
+                        if (!suiteFailures.isEmpty()) {
+                            echo "Suite-related failures detected:\n${suiteFailures.join('\n')}"
+                            currentBuild.result = 'UNSTABLE'
+                        }
