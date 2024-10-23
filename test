@@ -59,3 +59,31 @@
                             echo "Suite-related failures detected, marking the build as unstable."
                             currentBuild.result = 'UNSTABLE'
                         }
+
+
+
+13:13:49  **************************************************
+13:13:49  *                    Failures                    *
+13:13:49  **************************************************
+13:13:49  
+13:13:49  1) [CUSTOMER DATA SAVE FOR FUTURE:] [Save changes in a days] Change home page field value and save it
+13:13:49    - Failed: No element found using locator: By(css selector, #saveWithTerminNow)
+13:13:49  
+13:13:49  2) [TERMINAL:] [Wirtschaftlich Berechtigte] Name field is mandatory
+13:13:49    - Expected ' form-control form-control-sm ttext geldwaesche.GW_Vorname1' to match 'is-invalid'.
+13:13:49  
+13:13:49  3) [TERMINAL:] [Wirtschaftlich Berechtigte] Surname field is mandatory
+13:13:49    - Expected ' form-control form-control-sm ttext geldwaesche.GW_GName1' to match 'is-invalid'.
+13:13:49  
+13:13:49  4) [TERMINAL:] [Wirtschaftlich Berechtigte] Street field is mandatory
+13:13:49    - Expected ' form-control form-control-sm ttext geldwaesche.GW_Strasse1' to match 'is-invalid'.
+13:13:49  
+13:13:49  5) [TERMINAL:] [Wirtschaftlich Berechtigte] Post index field is mandatory
+13:13:49    - Expected ' form-control form-control-sm ttext geldwaesche.GW_PLZ1' to match 'is-invalid'.
+13:13:49  
+13:13:49  Executed 25 of 25 specs (5 FAILED) in 5 mins 43 secs.
+13:13:49  [10:13:05] I/launcher - 0 instance(s) of WebDriver still running
+13:13:49  [10:13:05] I/launcher - firefox #01 failed 5 test(s)
+13:13:49  [10:13:05] I/launcher - overall: 5 failed spec(s)
+13:13:49  [10:13:05] E/launcher - Process exited with error code 1
+13:13:49  5 tests failed.
