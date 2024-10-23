@@ -145,3 +145,21 @@ expected to call java.lang.String.eachLine but wound up catching org.jenkinsci.p
                                 otherFailures.add(line.trim())
                             }
                         }
+
+
+
+                        def isContainerRunning = sh(
+                            script: "docker ps --filter 'name=selenium' --filter 'status=running' -q",
+                            returnStdout: true
+                        ).trim()
+
+                        if (isContainerRunning) {
+                            echo "Container 'selenium' is already running. Stopping it..."
+                            sh "docker stop selenium"
+                            sh "docker rm selenium"
+                        } else {
+                            echo "No running 'selenium' container found. Proceeding with the tests."
+                        }
+
+
+                        def suitePattern = ~/^\[[A-Z]+:\] \[[A-Za-zäÄöÖüÜß ]+\]/  // Matches [TERMINAL:] [Wirtschaftlich Berechtigte]
