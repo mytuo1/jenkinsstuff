@@ -23,3 +23,39 @@
 12:09:08  [09:09:05] I/launcher - overall: 5 failed spec(s)
 12:09:08  [09:09:05] E/launcher - Process exited with error code 1
 12:09:08  5 tests failed.
+
+
+
+                        // Initialize flags for first failure and suite-related failure
+                        def firstFailureFound = false
+                        def suiteFailures = false
+
+                        // Split log into lines manually
+                        def logLines = logOutput.split("\n")
+
+                        // Iterate over each line to find failures
+                        for (line in logLines) {
+                            if (line.contains("Failures")) {
+                                // Failures section has started
+                                firstFailureFound = false
+                                suiteFailures = false
+                            }
+
+                            if (line.contains("- Failed:") && !firstFailureFound) {
+                                // First failure - fail the pipeline
+                                echo "First failure detected: ${line}"
+                                firstFailureFound = true
+                                error "Pipeline failed due to the first test failure: ${line}"
+                            }
+
+                            if (line.contains("[TERMINAL:] [Wirtschaftlich Berechtigte]") && line.contains("- Failed:")) {
+                                // Failures in the specific test suite - mark as unstable
+                                suiteFailures = true
+                            }
+                        }
+
+                        // If there are suite-related failures, mark the build as unstable
+                        if (suiteFailures) {
+                            echo "Suite-related failures detected, marking the build as unstable."
+                            currentBuild.result = 'UNSTABLE'
+                        }
