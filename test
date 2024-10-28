@@ -164,3 +164,32 @@ expected to call java.lang.String.eachLine but wound up catching org.jenkinsci.p
 
                         def suitePattern = ~/^\[[A-Z]+:\] \[[A-Za-zäÄöÖüÜß ]+\]/  // Matches [TERMINAL:] [Wirtschaftlich Berechtigte]
 def suitePattern = ~/^\[[A-Z\s]+\:\] \[[A-Za-zäÄöÖüÜß ]+\] [A-Za-z0-9 .:-]+/
+
+
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Set up the working directory in the container
+WORKDIR /app
+
+# Copy the PHP project files into the container
+COPY . /app
+
+# Install PHP dependencies using Composer
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Install PHP_CodeSniffer and PHPStan globally
+RUN composer global require "squizlabs/php_codesniffer" "phpstan/phpstan"
+
+# Add Composer global bin to the system PATH
+ENV PATH="$PATH:/root/.composer/vendor/bin"
+
+# Entry point to run tests with PHP_CodeSniffer and PHPStan
+CMD ["sh", "-c", "phpcs && phpstan analyse"]
