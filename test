@@ -1,7 +1,7 @@
 12:09:08  **************************************************
 12:09:08  *                    Failures                    *
 12:09:08  **************************************************
-12:09:08  
+12:09:08  michael.pehlgrim@payone.com  lasse.wulff@payone.com
 12:09:08  1) [CUSTOMER DATA SAVE FOR FUTURE:] [Save changes in a days] Change home page field value and save it
 12:09:08    - Failed: No element found using locator: By(css selector, #saveWithTerminNow)
 12:09:08  
