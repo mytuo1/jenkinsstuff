@@ -1,0 +1,33 @@
+#!/bin/sh
+# Git pre-commit hook to copy only committed files to a Docker container.
+
+# Get the list of committed files
+committed_files=$(git diff --name-only --cached)
+
+# Ensure there are committed files
+if [ -z "$committed_files" ]; then
+  echo "No files are staged for commit. Commit aborted."
+  exit 1
+fi
+
+# Write the list of files to a temporary file for the Docker process
+echo "$committed_files" > committed_files.txt
+
+# Build and run the Docker container, passing the committed files
+powershell -ExecutionPolicy Bypass -Command "
+  docker build --build-arg FILES_LIST=committed_files.txt -t commit-container .
+  docker run --rm commit-container
+"
+
+# Check if the Docker process succeeded
+if [ $? -ne 0 ]; then
+  echo "Docker container build/run failed. Commit aborted."
+  exit 1
+fi
+
+# Cleanup
+rm committed_files.txt
+
+# Allow the commit
+echo "Docker container build/run succeeded. Proceeding with commit."
+exit 0
